@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: molgen-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GENERATOR_BACKEND
+        value: fragment
+      - key: LEARNED_PRELOAD
+        value: "false"
+      - key: MONGO_ENABLED
+        value: "true"
+      - key: MONGO_DB_NAME
+        value: molgen
+      - key: MONGO_COLLECTION_NAME
+        value: generated_molecules
+      - key: ALLOWED_ORIGIN_REGEX
+        value: https://.*\.vercel\.app

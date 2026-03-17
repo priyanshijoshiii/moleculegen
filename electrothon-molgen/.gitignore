@@ -1,0 +1,36 @@
+# Frontend build artifacts
+.next/
+frontend/.next/
+node_modules/
+frontend/node_modules/
+frontend/out/
+
+# Python artifacts
+__pycache__/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment files / secrets
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Logs
+*.log
+next-dev.log
+next-dev.err.log
+backend.log
+
+# Misc
+Thumbs.db
+.DS_Store
