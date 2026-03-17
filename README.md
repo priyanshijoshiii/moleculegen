@@ -1,159 +1,119 @@
-# MolGen
+# MolGen 🧬  
+### AI-Powered Drug Molecule Generation System  
 
-MolGen is a split full-stack molecular generation project:
+MolGen is a full-stack application that generates drug-like molecules from natural language prompts, evaluates them, and returns the best candidates in real time.
 
-- `frontend/` -> Next.js app (deploy to Vercel)
-- `backend/` -> FastAPI service (deploy to Render)
+---
 
-Generated runs are persisted to MongoDB (Atlas).
+## 🚀 One-Line Pitch  
+Describe desired drug properties → get ranked, chemically valid molecules instantly.
 
-## Structure
+---
 
-```
-MolGen/
-  backend/
-    main.py
-    api.py
-    requirements.txt
-    .env.local
-    .env.example
-  frontend/
-    app/
-    package.json
-    .env.example
-  render.yaml
-```
+## 🧠 Why This Matters  
+Drug discovery is costly (~$2.6B per drug) and slow (~12 years) with high failure rates.  
 
-## Local Development
+MolGen reduces this by:
+- Generating candidates computationally  
+- Evaluating properties before lab testing  
+- Ranking the best molecules automatically  
 
-### 1) Install backend deps (from MolGen root)
+---
 
-```powershell
+## ⚙️ How It Works  
+
+### 🔁 Pipeline  
+Prompt → ML API → Generate Molecules → Score → Rank → Top Results  
+
+---
+
+## 🧩 System Architecture  
+
+| Layer | Component | Description |
+|------|----------|-------------|
+| Generation | ML API | Generates molecules from prompts |
+| Backend | FastAPI | Handles API + scoring |
+| Frontend | Next.js | Displays results |
+| Database | MongoDB Atlas | Stores generated molecules |
+
+---
+
+## 🔬 Key Features  
+
+- 🔁 Generate-then-filter pipeline  
+- 📊 Property scoring (QED, LogP, TPSA)  
+- 🧪 RDKit validation  
+- 💾 MongoDB storage  
+- 🌐 Full-stack deployment  
+
+---
+
+## 📊 Example Output  
+
+| Molecule (SMILES) | QED | Lipinski | TPSA |
+|-------------------|-----|----------|------|
+| CCOC1=CC=CC=C1 | 0.82 | ✅ | 42.3 |
+| CCN(CC)CCO | 0.76 | ✅ | 35.1 |
+
+---
+
+## 🛠 Tech Stack  
+
+- Backend: Python, FastAPI  
+- Frontend: Next.js, Tailwind  
+- DB: MongoDB Atlas  
+- Deployment: Render, Vercel  
+
+---
+
+## 📸 Demo  
+
+### UI
+<p align="center">
+  <img src="assets/demo1.jpeg" width="700"/>
+</p>
+
+### Results
+<p align="center">
+  <img src="assets/demo2.jpeg" width="700"/>
+</p>
+
+### Molecule Output
+<p align="center">
+  <img src="assets/demo3.jpeg" width="700"/>
+</p>
+
+---
+
+## ⚙️ Setup  
+
+### Backend
+```bash
 python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r backend/requirements.txt
+cd backend
+..\.venv\Scripts\python.exe -m uvicorn main:app --reload
 ```
 
-### 2) Install frontend deps
-
-```powershell
+### Frontend
+```bash
 cd frontend
 npm install
+npm run dev
 ```
 
-### 3) Backend env file
+## 📡 API  
 
-Create `backend/.env.local` from `backend/.env.example` and set real values.
+POST `/generate` → returns:
+- SMILES  
+- QED  
+- Lipinski  
+- TPSA  
 
-Minimum required:
+---
 
-```env
-MONGODB_ATLAS_URI=mongodb+srv://DB_USER:DB_PASSWORD@cluster0.xxxxx.mongodb.net/molgen?retryWrites=true&w=majority
-MONGO_DB_NAME=molgen
-MONGO_COLLECTION_NAME=generated_molecules
-MONGO_ENABLED=true
-ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001
-```
+## ⚠️ Limitations  
 
-### 4) Run backend (terminal A)
-
-```powershell
-cd backend
-..\.venv\Scripts\python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
-```
-
-### 5) Run frontend (terminal B)
-
-```powershell
-cd frontend
-npm run dev -- --port 3001
-```
-
-Open:
-
-- Frontend: http://127.0.0.1:3001
-- Backend docs: http://127.0.0.1:8000/docs
-
-## Deploy Frontend on Vercel
-
-Root directory on Vercel:
-
-- `frontend`
-
-Framework:
-
-- Next.js
-
-Required Vercel env variable:
-
-- `NEXT_PUBLIC_API_BASE_URL=https://<your-render-backend>.onrender.com`
-
-Notes:
-
-- In production, frontend requires `NEXT_PUBLIC_API_BASE_URL`.
-- If missing, UI will show a clear configuration error.
-
-## Deploy Backend on Render
-
-Use `render.yaml` from project root or create manually.
-
-If creating manually, set:
-
-- Root Directory: `backend`
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-
-Required Render env variables:
-
-- `MONGODB_ATLAS_URI` (real Atlas URI)
-- `MONGO_DB_NAME=molgen`
-- `MONGO_COLLECTION_NAME=generated_molecules`
-- `MONGO_ENABLED=true`
-
-CORS env variables for Vercel:
-
-- `ALLOWED_ORIGINS=https://<your-vercel-domain>.vercel.app`
-- Optional for previews: `ALLOWED_ORIGIN_REGEX=https://.*\.vercel\.app`
-
-## End-to-End Deploy Wiring
-
-1. Deploy backend on Render and copy backend URL.
-2. Set Vercel `NEXT_PUBLIC_API_BASE_URL` to that Render URL.
-3. In Render, allow your Vercel origin through `ALLOWED_ORIGINS` (or regex).
-4. Redeploy both services after env changes.
-
-## MongoDB Persistence
-
-Each successful `POST /generate` inserts one document into:
-
-- Database: `molgen`
-- Collection: `generated_molecules`
-
-Collection is auto-created on first write.
-
-## Common Errors
-
-### Port in use (EADDRINUSE)
-
-Stop process on the port or choose another port.
-
-### PowerShell path error with Python
-
-Use exact path with no extra spaces:
-
-```powershell
-..\.venv\Scripts\python.exe
-```
-
-### Atlas connected but no data visible
-
-- Confirm correct Atlas project/cluster
-- Confirm IP/network access and DB user permissions
-- Trigger at least one successful `/generate` request
-- Refresh collection view
-
-## Security
-
-- Never commit real credentials in `.env.local`.
-- Rotate MongoDB password if exposed.
-- `.env*` files are ignored by git.
+- Computational predictions (not lab-tested)  
+- Depends on API/model quality  
+ 
